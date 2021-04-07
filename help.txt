@@ -1,5 +1,0 @@
-■ HELP: Show Commands List
-■ LIST: Show List of Files with Details
-■ DWLD "filePath":
-■ PWD:
-■ CD "dirName":
