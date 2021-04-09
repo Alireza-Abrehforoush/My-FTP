@@ -34,9 +34,9 @@ print("Enter one of the following commands:\n\n    # HELP: 			    Show this help
 while True:
     command = input("Enter Command: ")
     client_socket.send(command.encode())
-    if not command.startswith("DWLD"):
-        answer = client_socket.recv(1024)
-        print(answer.decode())
-    else:
+    if command.startswith("DWLD") or command.startswith("dwld"):
         data_port = client_socket.recv(1024)
         recieveFile(int(data_port), command[5:])
+    else:
+        answer = client_socket.recv(1024)
+        print(answer.decode())

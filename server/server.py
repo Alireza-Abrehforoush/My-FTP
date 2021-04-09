@@ -8,10 +8,11 @@ print("To get started, connect to a client")
 server_port = 2121
 server_socket = sct.socket(sct.AF_INET, sct.SOCK_STREAM)
 server_socket.bind(('127.0.0.1', server_port))
-print
+
 server_socket.listen(5)
 print("Server listening on " + "0.0.0.0: " + str(server_port) + "\n")
 
+os.chdir("files")
 main_path = os.getcwd()
 
 #functions
@@ -38,23 +39,24 @@ def ftpList(cnct_sock):
     size_of_files_in_current_folder = 0
     for i in files_folders:
         if os.path.isdir(i):
-            ls = ls + '\t' + '>' + i + ' (' + str(getSizeOfDirectoriesIn(i)) + ' B)' + '\n'
+            ls = ls + '>' + '\t' + i + ' (' + str(getSizeOfDirectoriesIn(i)) + ' B)' + '\n'
+            size_of_files_in_current_folder = size_of_files_in_current_folder + getSizeOfDirectoriesIn(i)
         if os.path.isfile(i):
-            ls = ls + '\t' + ' ' + i + ' (' + str(os.path.getsize(i)) + ' B)' + '\n'
+            ls = ls + ' ' + '\t' + i + ' (' + str(os.path.getsize(i)) + ' B)' + '\n'
             size_of_files_in_current_folder = size_of_files_in_current_folder + os.path.getsize(i)
-    ls = ls + "\nTotal size of files in current directory(not including subdirectories): " + str(size_of_files_in_current_folder) + " Bytes\n"
+    ls = ls + "\nTotal directory size: " + str(size_of_files_in_current_folder) + " Bytes\n"
     cnct_sock.send(ls.encode())
 
 def ftpPwd(cnct_sock):
     print("pwd ...")
     current_path = os.getcwd()
     current_path = current_path + '\\'
-    i = current_path.find("server")
-    h = current_path[i+6:]
+    i = current_path.find("files")
+    h = current_path[i+5:]
     cnct_sock.send(h.encode())
 
 def ftpDwld(file_path, cnct_sock):
-    print("")
+    print("Sending file...")
     data_port = rnd.randrange(3000, 50000)
     cnct_sock.send(str(data_port).encode())
     data_channel = sct.socket(sct.AF_INET, sct.SOCK_STREAM)
@@ -81,30 +83,30 @@ def ftpCd(dir_name, cnct_sock):
     print("Current Directory is set to" + " \"" + os.getcwd() + "\"")
     cnct_sock.send(h.encode())
     print("New directory sent to client\n")
-#    cnct_sock.close()
 
 
 while True:
     connection_socket, addr = server_socket.accept()
+    print("client " + "\"" + str(addr[0]) + "\"" + " connected to port: " + str(server_port))
     while True:
         command = connection_socket.recv(1024).decode()
         print("Recieved instruction: " + command)
-        if command == "HELP":
+        if command == "HELP" or command == "help":
             ftpHelp(connection_socket)
 
-        elif command == "LIST":
+        elif command == "LIST" or command == "list":
             ftpList(connection_socket)
 
-        elif command.startswith("DWLD"):
+        elif command.startswith("DWLD") or command.startswith("dwld"):
             ftpDwld(command[5:], connection_socket)
 
-        elif command == "PWD":
+        elif command == "PWD" or command == "pwd":
             ftpPwd(connection_socket)
 
-        elif command.startswith("CD"):
+        elif command.startswith("CD") or command.startswith("cd"):
             ftpCd(command[3:], connection_socket)
 
-        elif command == "QUIT":
+        elif command == "QUIT" or command == "quit":
             print("Exiting ...\n")
             break
 
@@ -112,4 +114,4 @@ while True:
             print("Invalid command")
             connection_socket.send("Invalid command entered\n".encode())
     server_socket.close()
-    print("Client exited")
+    print("client " + "\"" + str(addr[0]) + "\"" + " disconnected:")
