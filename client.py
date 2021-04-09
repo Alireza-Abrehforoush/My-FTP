@@ -37,6 +37,21 @@ while True:
     if command.startswith("DWLD") or command.startswith("dwld"):
         data_port = client_socket.recv(1024)
         recieveFile(int(data_port), command[5:])
-    else:
+    elif command == "HELP" or command == "help":
+        print("Getting help...")
         answer = client_socket.recv(1024)
         print(answer.decode())
+    elif command == "LIST" or command == "list":
+        print("Requesting files...")
+        answer = client_socket.recv(1024)
+        print(answer.decode())
+    elif command == "PWD" or command == "pwd":
+        print("Requesting path...")
+        answer = client_socket.recv(1024)
+        print(answer.decode())
+    elif command.startswith("CD") or command.startswith("cd"):
+        print("Changing dir to: " + command[3:])
+        answer = client_socket.recv(1024)
+        print(answer.decode())
+    else:
+        print("Invalid command entered!")

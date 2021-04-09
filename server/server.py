@@ -31,6 +31,7 @@ def ftpHelp(cnct_sock):
     print("Help ...")
     h = "Enter one of the following commands:\n\n    # HELP: 			    Show this help\n    # LIST: 			    List files\n    # DWLD \"file_path\": 	Download file\n    # PWD: 					Show current dir\n    # CD \"dir_name\": 		Change directory\n    # QUIT:					Exit\n"
     cnct_sock.send(h.encode())
+    print("Help is sent\n")
 
 def ftpList(cnct_sock):
     print("Listing files ...\n")
@@ -46,6 +47,7 @@ def ftpList(cnct_sock):
             size_of_files_in_current_folder = size_of_files_in_current_folder + os.path.getsize(i)
     ls = ls + "\nTotal directory size: " + str(size_of_files_in_current_folder) + " Bytes\n"
     cnct_sock.send(ls.encode())
+    print("file listing sent successfully\n")
 
 def ftpPwd(cnct_sock):
     print("pwd ...")
@@ -54,19 +56,30 @@ def ftpPwd(cnct_sock):
     i = current_path.find("files")
     h = current_path[i+5:]
     cnct_sock.send(h.encode())
+    print("Current directory sent\n")
 
 def ftpDwld(file_path, cnct_sock):
-    print("Sending file...")
-    data_port = rnd.randrange(3000, 50000)
-    cnct_sock.send(str(data_port).encode())
-    data_channel = sct.socket(sct.AF_INET, sct.SOCK_STREAM)
-    data_channel.bind(("127.0.0.1", data_port))
-    data_channel.listen(5)
-    data_connection_socket, bddr = data_channel.accept()
-    f = open(file_path, "rb")
-    data_connection_socket.send(f.read())
-    data_connection_socket.close()
-    data_channel.close()
+    if os.path.isfile(file_path):
+        if file_path.startswith(main_path) or (os.getcwd() + "\"" + file_path).startswith(main_path):
+            print("Sending file...")
+            data_port = rnd.randrange(3000, 50000)
+            cnct_sock.send(str(data_port).encode())
+            data_channel = sct.socket(sct.AF_INET, sct.SOCK_STREAM)
+            data_channel.bind(("127.0.0.1", data_port))
+            data_channel.listen(5)
+            data_connection_socket, bddr = data_channel.accept()
+            f = open(file_path, "rb")
+            data_connection_socket.send(f.read())
+            data_connection_socket.close()
+            data_channel.close()
+            print("File sent successfully\n")
+        else:
+            h = "You do not have permission to download this file!"
+            cnct_sock.send(h.encode())
+    else:
+        k = "File not found"
+        cnct_sock.send(k.encode())
+
 
 def ftpCd(dir_name, cnct_sock):
     print("CD ...")
