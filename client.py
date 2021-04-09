@@ -36,7 +36,11 @@ while True:
     client_socket.send(command.encode())
     if command.startswith("DWLD") or command.startswith("dwld"):
         data_port = client_socket.recv(1024)
-        recieveFile(int(data_port), command[5:])
+        g = recieveFile(int(data_port), command[5:])
+        if g:
+            print("File downloaded successfully")
+        else:
+            print("Failed to download")
     elif command == "HELP" or command == "help":
         print("Getting help...")
         answer = client_socket.recv(1024)
